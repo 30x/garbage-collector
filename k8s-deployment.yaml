@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: garbage-collector
+  labels:
+    name: garbage-collector
+  namespace: apigee
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: garbage-collector
+  template:
+    metadata:
+      labels:
+        component: garbage-collector
+        routable: "true"
+      annotations:
+        privateHosts: sso.k8s.local
+        privatePaths: 3000:/garbage-collector
+    spec:
+      containers:
+      - name: garbage-collector
+        image: garbage-collector
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: PORT
+            value: "3000"
+          - name: SHIPYARD_PRIVATE_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: routing
+                key: private-api-key
+          - name: SPEEDUP
+            value: "10" 
+          - name: INTERNAL_SY_ROUTER_HOST
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP          
+          - name: INTERNAL_SY_ROUTER_PORT
+            value: "30556"
+          - name: IPADDRESS
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP          
+        ports:
+          - containerPort: 3000
