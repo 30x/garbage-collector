@@ -16,7 +16,7 @@ function createTrashPickupRequest(req, res, pickupRequest) {
 
 function verifyRequest(req, res, pickupRequest, callback) {
   if (typeof pickupRequest.isA != 'string')
-    return lib.badRequest(res, 'pickupRequest must have an isA property with a string value')
+    return lib.badRequest(res, `pickupRequest must have an isA property with a string value: ${JSON.stringify(pickupRequest)}`)
   if (pickupRequest.isA != 'TrashPickupRequest')
     return lib.badRequest(res, `pickupRequest.isA must be 'TrashPickupRequest', not ${pickupRequest.isA}`)  
   if (typeof pickupRequest.trashItem != 'string')
@@ -29,7 +29,7 @@ function verifyRequest(req, res, pickupRequest, callback) {
 function requestHandler(req, res) {
   if (req.url == '/trash-pickup-requests')
     if (req.method == 'POST')
-      lib.getServerPostObject(req, res, function(req, res, pickupRequest) {
+      lib.getServerPostObject(req, res, function(pickupRequest) {
         verifyRequest(req, res, pickupRequest, function() {
           createTrashPickupRequest(req, res, pickupRequest)
         })
